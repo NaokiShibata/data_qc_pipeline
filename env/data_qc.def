@@ -1,0 +1,24 @@
+Bootstrap: docker
+From: debian:bookworm-slim
+
+%post
+    # 必要なツールと依存をインストール
+    apt update && apt install -y wget curl git ca-certificates \
+        python3 python3-venv python3-pip unzip
+
+    # 仮想環境の作成と MultiQC のインストール
+    python3 -m venv /opt/venv
+    /opt/venv/bin/pip install --upgrade pip
+    /opt/venv/bin/pip install multiqc==1.28
+
+    # fastp バイナリをダウンロードして /usr/local/bin に配置
+    wget -O /usr/local/bin/fastp http://opengene.org/fastp/fastp.0.23.4
+    chmod a+x /usr/local/bin/fastp
+
+%environment
+    export LC_ALL=C.UTF-8
+    export PATH=/opt/venv/bin:$PATH
+
+%labels
+    Author your name
+    Version 1.0
