@@ -1,7 +1,9 @@
 nextflow.enable.dsl=2
 
+params.input_csv = null
+
 process FASTP {
-    tab "$sample_id"
+    tag "$sample_id"
     publishDir "Results/fastp/fastq", pattern: "*_R{1,2}.fastq.gz", mode: "copy" 
     publishDir "Results/fastp/summary", pattern: "*.{html,json}", mode: "copy"
 
@@ -47,7 +49,11 @@ process MULTIQC {
 }
 
 workflow {
-    reads = Channel.fromPath( "sample.csv" )
+    if (! params.input_csv) {
+        error "Error: Please provide a CSV file with --input_csv"
+    }
+
+    reads = Channel.fromPath( params.input_csv )
         .splitCsv(header: true)
         .map { row -> 
             tuple(row.sample_id, file(row.read1), file(row.read2))
